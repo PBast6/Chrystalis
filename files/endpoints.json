@@ -1,0 +1,90 @@
+{
+  "endpoints": [
+    {
+      "name": "createUser",
+      "port": 8080,
+      "method": "POST",
+      "path": "/api/users",
+      "expectedPayload": {
+        "user": {
+          "name": "Ada",
+          "role": "admin"
+        }
+      },
+      "response": {
+        "status": 201,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "id": 42,
+          "status": "CREATED",
+          "user": {
+            "name": "Ada",
+            "role": "admin"
+          }
+        }
+      }
+    },
+    {
+      "name": "health",
+      "port": 8080,
+      "method": "GET",
+      "path": "/api/health",
+      "response": {
+        "status": 200,
+        "body": {
+          "status": "UP"
+        }
+      }
+    },
+    {
+      "name": "getUserById",
+      "port": 8080,
+      "method": "GET",
+      "path": "/api/users/*",
+      "response": {
+        "status": 200,
+        "body": {
+          "id": 42,
+          "name": "Ada",
+          "role": "admin"
+        }
+      }
+    },
+    {
+      "name": "legacyPing",
+      "port": 9090,
+      "method": "GET",
+      "path": "/ping",
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "text/plain; charset=UTF-8"
+        },
+        "body": "pong"
+      }
+    },
+    {
+      "name": "legacyOrders",
+      "port": 9090,
+      "method": "PUT",
+      "path": "/legacy/orders",
+      "expectedPayload": {
+        "orderId": 1001,
+        "items": [
+          {
+            "sku": "ABC-1"
+          }
+        ]
+      },
+      "response": {
+        "status": 202,
+        "body": {
+          "accepted": true,
+          "orderId": 1001
+        }
+      }
+    }
+  ]
+}

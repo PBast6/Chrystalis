@@ -1,0 +1,94 @@
+### Chrystalis Mock-Server – Beispiel-Requests
+#
+# Passend zur mitgelieferten files/endpoints.json.
+# Server vorher starten:  mvn spring-boot:run
+#
+# Ausfuehren: IntelliJ HTTP Client (Play-Symbol links) oder
+#             VS Code mit der Erweiterung "REST Client" (Send Request).
+
+@host = http://localhost
+@portA = 8080
+@portB = 9090
+
+### 201 – Payload passt; "extra" ist ein erlaubtes Zusatzfeld (Subset-Match)
+POST {{host}}:{{portA}}/api/users
+Content-Type: application/json
+
+{
+  "user": {
+    "name": "Ada",
+    "role": "admin",
+    "extra": 1
+  }
+}
+
+### 400 PAYLOAD_MISMATCH – "role" weicht ab, die Antwort nennt $.user.role
+POST {{host}}:{{portA}}/api/users
+Content-Type: application/json
+
+{
+  "user": {
+    "name": "Ada",
+    "role": "guest"
+  }
+}
+
+### 400 PAYLOAD_MISMATCH – "role" fehlt ganz, gemeldet als <fehlt>
+POST {{host}}:{{portA}}/api/users
+Content-Type: application/json
+
+{
+  "user": {
+    "name": "Ada"
+  }
+}
+
+### 400 INVALID_JSON_BODY – der Body ist kein gueltiges JSON
+POST {{host}}:{{portA}}/api/users
+Content-Type: application/json
+
+kein json
+
+### 200 – Endpunkt ohne erwarteten Payload
+GET {{host}}:{{portA}}/api/health
+
+### 200 – Ant-Muster /api/users/* trifft jede Id
+GET {{host}}:{{portA}}/api/users/42
+
+### 200 – abschliessender Schraegstrich wird ignoriert
+GET {{host}}:{{portA}}/api/health/
+
+### 405 METHOD_NOT_ALLOWED – Antwort enthaelt "Allow: GET"
+DELETE {{host}}:{{portA}}/api/health
+
+### 404 NO_MATCHING_ENDPOINT – Pfad gibt es auf diesem Port nicht
+GET {{host}}:{{portA}}/gibt/es/nicht
+
+### 404 – /ping ist nur auf Port 9090 definiert (Port-Isolation)
+GET {{host}}:{{portA}}/ping
+
+### 200 text/plain – derselbe Prozess, anderer Port
+GET {{host}}:{{portB}}/ping
+
+### 202 – Array im erwarteten Payload; "qty" ist zusaetzlich erlaubt
+PUT {{host}}:{{portB}}/legacy/orders
+Content-Type: application/json
+
+{
+  "orderId": 1001,
+  "items": [
+    {
+      "sku": "ABC-1",
+      "qty": 3
+    }
+  ]
+}
+
+### 400 – Array hat die falsche Laenge, gemeldet als $.items
+PUT {{host}}:{{portB}}/legacy/orders
+Content-Type: application/json
+
+{
+  "orderId": 1001,
+  "items": []
+}

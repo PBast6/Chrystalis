@@ -1,0 +1,15 @@
+{
+  "$schema": "../endpoints.schema.json",
+  "endpoints": [
+    {
+      "port": 8080,
+      "method": "GET",
+      "path": "/hello",
+      "response": {
+        "body": {
+          "message": "Hallo Welt"
+        }
+      }
+    }
+  ]
+}

@@ -40,6 +40,15 @@ curl -i localhost:8080/ping            # 404 – nur auf Port 9090 definiert
 curl -i -X DELETE localhost:8080/api/health   # 405 + Allow: GET
 ```
 
+## Konfiguration schreiben
+
+| Wo | Was |
+| --- | --- |
+| [`docs/konfiguration.md`](docs/konfiguration.md) | vollständige Feldreferenz, Subset-Semantik, Pfadauflösung, alle Fehlermeldungen |
+| [`files/examples/`](files/examples/README.md) | sechs lauffähige Beispieldateien, je eine pro Thema, mit passenden curl-Aufrufen |
+| [`files/endpoints.schema.json`](files/endpoints.schema.json) | JSON-Schema — über die `"$schema"`-Zeile validiert und vervollständigt die IDE beim Tippen |
+| [`requests.http`](requests.http) | fertige Requests für den IntelliJ HTTP Client und VS Code REST Client |
+
 ## Aufbau der Konfiguration
 
 ```json
@@ -133,6 +142,10 @@ Der erste Treffer dieser Reihenfolge gewinnt:
 
 ```
 files/endpoints.json                     Eingabe-Konfiguration
+files/endpoints.schema.json              JSON-Schema für IDE-Validierung
+files/examples/                          lauffähige Beispielkonfigurationen
+docs/konfiguration.md                    vollständige Feldreferenz
+requests.http                            Requests für IntelliJ / VS Code
 src/main/java/com/chrystalis/mockserver/
   MockServerApplication.java             main(): Konfiguration laden, dann starten
   MockServerBootstrap.java               setzt server.port und reicht die Registry hinein
@@ -148,8 +161,14 @@ src/main/java/com/chrystalis/mockserver/
 mvn test
 ```
 
-- `PayloadMatcherTest` – Subset-Semantik, Arrays, Zahlen, Typwechsel, Mismatch-Pfade
+- `PayloadMatcherTest` – Subset-Semantik, Arrays, Zahlen, `null`, Typwechsel, Mismatch-Pfade
 - `EndpointConfigLoaderTest` – Parsen, Defaults, Validierungsfehler, Pfadauflösung
 - `EndpointRegistryTest` – Port-Isolation, exakte Pfade vor Mustern, erlaubte Methoden
+- `ExampleConfigurationsTest` – jede ausgelieferte Konfiguration erfüllt das JSON-Schema *und*
+  lädt fehlerfrei; hält Schema und Java-Validierung nachweislich synchron
+- `DynamicEndpointControllerTest` – Statuscodes, Header, Array-/Skalar-/Klartext-Body,
+  `PUT`/`PATCH`/`HEAD`, Port-Trennung (MockMvc, ohne Serverstart)
 - `MultiPortIntegrationTest` – startet den echten Server auf zwei freien Ports und prüft
   201/400/404/405 sowie `text/plain` über echte HTTP-Requests
+- `ExampleServerIntegrationTest` – spielt `files/examples/06-rest-api.json` gegen einen echten
+  Server durch, damit die dokumentierten Beispiele nachweislich funktionieren

@@ -147,4 +147,43 @@ class EndpointConfigLoaderTest {
 
         assertThat(registry.ports()).containsExactly(8080, 9090);
     }
+
+    @Test
+    @DisplayName("$schema wird als einziges Zusatzfeld geduldet")
+    void toleratesSchemaReference() {
+        EndpointConfig config = parse("""
+                {"$schema": "endpoints.schema.json",
+                 "endpoints": [{"port": 8080, "method": "GET", "path": "/x", "response": {}}]}""");
+
+        assertThat(config.endpoints()).hasSize(1);
+    }
+
+    @Test
+    @DisplayName("Ein anderes Zusatzfeld auf oberster Ebene bleibt ein Fehler")
+    void stillRejectsOtherTopLevelFields() {
+        assertThatThrownBy(() -> parse("""
+                {"endpoint": [{"port": 8080, "method": "GET", "path": "/x", "response": {}}],
+                 "endpoints": [{"port": 8081, "method": "GET", "path": "/y", "response": {}}]}"""))
+                .isInstanceOf(ConfigurationException.class);
+    }
+
+    @Test
+    @DisplayName("Ein Statuscode ausserhalb von 100-599 wird abgelehnt")
+    void rejectsImpossibleStatusCode() {
+        assertThatThrownBy(() -> parse("""
+                {"endpoints": [
+                  {"name": "x", "port": 8080, "method": "GET", "path": "/x", "response": {"status": 42}}
+                ]}"""))
+                .isInstanceOf(ConfigurationException.class)
+                .hasMessageContaining("Statuscode 42");
+    }
+
+    @Test
+    @DisplayName("Der Wurzelpfad / bleibt erhalten")
+    void keepsRootPath() {
+        EndpointConfig config = parse("""
+                {"endpoints": [{"port": 8080, "method": "GET", "path": "/", "response": {}}]}""");
+
+        assertThat(config.endpoints().get(0).path()).isEqualTo("/");
+    }
 }

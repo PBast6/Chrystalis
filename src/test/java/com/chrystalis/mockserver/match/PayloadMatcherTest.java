@@ -130,4 +130,61 @@ class PayloadMatcherTest {
         assertThat(PayloadMatcher.match(json("\"pong\""), json("\"ping\"")).mismatches())
                 .isEqualTo(List.of(new Mismatch("$", "pong", "ping")));
     }
+
+    @Test
+    @DisplayName("Ein erwartetes null verlangt das Feld, aber mit Wert null")
+    void expectedNullRequiresThePresentNullField() {
+        assertThat(match("{\"a\": null}", "{\"a\": null}").matches()).isTrue();
+        assertThat(match("{\"a\": null}", "{\"a\": 1}").mismatches())
+                .containsExactly(new Mismatch("$.a", "null", "1"));
+        assertThat(match("{\"a\": null}", "{\"b\": 1}").mismatches())
+                .containsExactly(new Mismatch("$.a", "null", PayloadMatcher.MISSING));
+    }
+
+    @Test
+    @DisplayName("Booleans werden auf Gleichheit geprueft")
+    void booleansAreCompared() {
+        assertThat(match("{\"ok\": true}", "{\"ok\": true}").matches()).isTrue();
+        assertThat(match("{\"ok\": true}", "{\"ok\": false}").mismatches())
+                .containsExactly(new Mismatch("$.ok", "true", "false"));
+        assertThat(match("{\"ok\": true}", "{\"ok\": \"true\"}").mismatches())
+                .containsExactly(new Mismatch("$.ok", "true", "true"));
+    }
+
+    @Test
+    @DisplayName("Ein leeres erwartetes Objekt stellt keine Bedingung")
+    void emptyExpectedObjectMatchesAnyObject() {
+        assertThat(match("{}", "{\"x\": 1, \"y\": [1, 2]}").matches()).isTrue();
+        assertThat(match("{\"a\": {}}", "{\"a\": {\"tief\": true}}").matches()).isTrue();
+        assertThat(match("{}", "[1, 2]").mismatches()).extracting(Mismatch::path).containsExactly("$");
+    }
+
+    @Test
+    @DisplayName("In einem Array aus Objekten wird die Position mitgemeldet")
+    void reportsIndexInsideArrays() {
+        MatchResult result = match("""
+                {"items": [{"sku": "A"}, {"sku": "B"}, {"sku": "C"}]}""", """
+                {"items": [{"sku": "A"}, {"sku": "X"}, {"sku": "C"}]}""");
+
+        assertThat(result.mismatches())
+                .containsExactly(new Mismatch("$.items[1].sku", "B", "X"));
+    }
+
+    @Test
+    @DisplayName("Verschachtelte Arrays werden rekursiv verglichen")
+    void nestedArraysAreCompared() {
+        assertThat(match("{\"m\": [[1, 2], [3]]}", "{\"m\": [[1, 2], [3]]}").matches()).isTrue();
+        assertThat(match("{\"m\": [[1, 2]]}", "{\"m\": [[1, 9]]}").mismatches())
+                .containsExactly(new Mismatch("$.m[0][1]", "2", "9"));
+    }
+
+    @Test
+    @DisplayName("Ein Array wird nicht gegen ein Objekt verglichen")
+    void arrayVersusObjectIsATypeMismatch() {
+        MatchResult result = match("{\"a\": [1]}", "{\"a\": {\"0\": 1}}");
+
+        assertThat(result.mismatches()).hasSize(1);
+        assertThat(result.mismatches().get(0).expected()).startsWith("Array");
+        assertThat(result.mismatches().get(0).actual()).startsWith("Objekt");
+    }
 }

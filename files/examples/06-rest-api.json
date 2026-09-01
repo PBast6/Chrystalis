@@ -1,0 +1,143 @@
+{
+  "$schema": "../endpoints.schema.json",
+  "endpoints": [
+    {
+      "name": "Token holen",
+      "port": 8080,
+      "method": "POST",
+      "path": "/api/v1/auth/token",
+      "expectedPayload": {
+        "clientId": "demo",
+        "clientSecret": "geheim"
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "accessToken": "demo-token",
+          "expiresIn": 3600
+        }
+      }
+    },
+    {
+      "name": "Buecher auflisten",
+      "port": 8080,
+      "method": "GET",
+      "path": "/api/v1/books",
+      "response": {
+        "status": 200,
+        "body": [
+          {
+            "id": 1,
+            "title": "Der Prozess",
+            "author": "Kafka"
+          },
+          {
+            "id": 2,
+            "title": "Die Verwandlung",
+            "author": "Kafka"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Buch anlegen",
+      "port": 8080,
+      "method": "POST",
+      "path": "/api/v1/books",
+      "expectedPayload": {
+        "title": "Das Schloss",
+        "author": "Kafka"
+      },
+      "response": {
+        "status": 201,
+        "headers": {
+          "Location": "/api/v1/books/3"
+        },
+        "body": {
+          "id": 3,
+          "title": "Das Schloss",
+          "author": "Kafka"
+        }
+      }
+    },
+    {
+      "name": "Buch lesen (unbekannte Id)",
+      "port": 8080,
+      "method": "GET",
+      "path": "/api/v1/books/999",
+      "response": {
+        "status": 404,
+        "body": {
+          "error": "BOOK_NOT_FOUND",
+          "id": 999
+        }
+      }
+    },
+    {
+      "name": "Buch lesen",
+      "port": 8080,
+      "method": "GET",
+      "path": "/api/v1/books/{id}",
+      "response": {
+        "status": 200,
+        "body": {
+          "id": 1,
+          "title": "Der Prozess",
+          "author": "Kafka"
+        }
+      }
+    },
+    {
+      "name": "Buch aendern",
+      "port": 8080,
+      "method": "PUT",
+      "path": "/api/v1/books/1",
+      "expectedPayload": {
+        "id": 1,
+        "title": "Der Process"
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "id": 1,
+          "title": "Der Process",
+          "author": "Kafka"
+        }
+      }
+    },
+    {
+      "name": "Buch loeschen",
+      "port": 8080,
+      "method": "DELETE",
+      "path": "/api/v1/books/{id}",
+      "response": {
+        "status": 204
+      }
+    },
+    {
+      "name": "Health-Check",
+      "port": 9090,
+      "method": "GET",
+      "path": "/actuator/health",
+      "response": {
+        "status": 200,
+        "body": {
+          "status": "UP"
+        }
+      }
+    },
+    {
+      "name": "Build-Info als Klartext",
+      "port": 9090,
+      "method": "GET",
+      "path": "/actuator/info",
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "text/plain; charset=UTF-8"
+        },
+        "body": "chrystalis-mockserver 1.0.0"
+      }
+    }
+  ]
+}

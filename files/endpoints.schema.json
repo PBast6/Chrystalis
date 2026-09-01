@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/PBast6/Chrystalis/files/endpoints.schema.json",
+  "title": "Chrystalis Mock-Server Endpunkt-Konfiguration",
+  "description": "Beschreibt die Endpunkte, die der Mock-Server bedient: Endpunkt, Port, erwarteter Payload und Rueckgabewert.",
+  "type": "object",
+  "required": ["endpoints"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "title": "Schema-Verweis",
+      "description": "Optionaler Verweis auf diese Schemadatei, damit die IDE beim Schreiben validiert. Wird vom Server ignoriert."
+    },
+    "endpoints": {
+      "type": "array",
+      "title": "Endpunkte",
+      "description": "Mindestens ein Endpunkt. Die Kombination aus port, method und path muss eindeutig sein.",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/endpoint" }
+    }
+  },
+  "$defs": {
+    "endpoint": {
+      "type": "object",
+      "title": "Endpunkt",
+      "required": ["port", "method", "path", "response"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "Name",
+          "description": "Optionaler Name fuer Logs und Fehlermeldungen. Standard ist \"METHODE Pfad\".",
+          "minLength": 1
+        },
+        "port": {
+          "type": "integer",
+          "title": "Port",
+          "description": "Port, auf dem dieser Endpunkt erreichbar ist. Der kleinste Port der Datei wird zum Hauptport, fuer jeden weiteren wird ein zusaetzlicher Connector geoeffnet.",
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "method": {
+          "type": "string",
+          "title": "HTTP-Methode",
+          "description": "Wird beim Laden in Grossbuchstaben normalisiert.",
+          "enum": [
+            "GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS", "TRACE",
+            "get", "post", "put", "patch", "delete", "head", "options", "trace"
+          ]
+        },
+        "path": {
+          "type": "string",
+          "title": "Pfad",
+          "description": "Pfad ab \"/\". Ant-Muster wie /api/users/* oder /api/users/{id} sind erlaubt; ein abschliessender Schraegstrich wird ignoriert.",
+          "pattern": "^/"
+        },
+        "expectedPayload": {
+          "title": "Erwarteter Payload",
+          "description": "Erwarteter Request-Body. Geprueft wird als Subset: alles hier Genannte muss im Request vorkommen und uebereinstimmen, zusaetzliche Felder sind erlaubt. Fehlt das Feld, wird der Body nicht geprueft."
+        },
+        "response": { "$ref": "#/$defs/response" }
+      }
+    },
+    "response": {
+      "type": "object",
+      "title": "Antwort",
+      "description": "Was der Server zurueckgibt, wenn der Endpunkt trifft und der Payload passt.",
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "type": "integer",
+          "title": "HTTP-Status",
+          "description": "Standard ist 200.",
+          "minimum": 100,
+          "maximum": 599,
+          "default": 200
+        },
+        "headers": {
+          "type": "object",
+          "title": "Antwort-Header",
+          "description": "Zusaetzliche Header. Ohne eigenen Content-Type wird application/json gesetzt.",
+          "additionalProperties": { "type": "string" }
+        },
+        "body": {
+          "title": "Antwort-Body",
+          "description": "Beliebiges JSON: Objekt, Array, Text, Zahl oder Boolean. Fehlt das Feld oder ist es null, bleibt der Body leer."
+        }
+      }
+    }
+  }
+}

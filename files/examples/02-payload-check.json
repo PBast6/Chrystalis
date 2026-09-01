@@ -1,0 +1,93 @@
+{
+  "$schema": "../endpoints.schema.json",
+  "endpoints": [
+    {
+      "name": "flaches Objekt",
+      "port": 8080,
+      "method": "POST",
+      "path": "/login",
+      "expectedPayload": {
+        "username": "ada"
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "token": "eyJhbGciOiJub25lIn0"
+        }
+      }
+    },
+    {
+      "name": "verschachteltes Objekt",
+      "port": 8080,
+      "method": "POST",
+      "path": "/api/users",
+      "expectedPayload": {
+        "user": {
+          "name": "Ada",
+          "address": {
+            "city": "London"
+          }
+        }
+      },
+      "response": {
+        "status": 201,
+        "body": {
+          "id": 42
+        }
+      }
+    },
+    {
+      "name": "Array im Payload",
+      "port": 8080,
+      "method": "POST",
+      "path": "/api/orders",
+      "expectedPayload": {
+        "orderId": 1001,
+        "items": [
+          {
+            "sku": "ABC-1"
+          },
+          {
+            "sku": "ABC-2"
+          }
+        ]
+      },
+      "response": {
+        "status": 202,
+        "body": {
+          "accepted": true
+        }
+      }
+    },
+    {
+      "name": "Zahl, Boolean und null",
+      "port": 8080,
+      "method": "POST",
+      "path": "/api/flags",
+      "expectedPayload": {
+        "retries": 3,
+        "enabled": true,
+        "deletedAt": null
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "ok": true
+        }
+      }
+    },
+    {
+      "name": "leeres Objekt akzeptiert jeden Body",
+      "port": 8080,
+      "method": "POST",
+      "path": "/api/anything",
+      "expectedPayload": {},
+      "response": {
+        "status": 200,
+        "body": {
+          "hint": "Jeder JSON-Objekt-Body passt hier."
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,107 @@
+{
+  "$schema": "../endpoints.schema.json",
+  "endpoints": [
+    {
+      "name": "201 mit Location-Header",
+      "port": 8080,
+      "method": "POST",
+      "path": "/api/tickets",
+      "response": {
+        "status": 201,
+        "headers": {
+          "Location": "/api/tickets/7",
+          "X-Request-Id": "demo-0001"
+        },
+        "body": {
+          "id": 7
+        }
+      }
+    },
+    {
+      "name": "204 ohne Body",
+      "port": 8080,
+      "method": "DELETE",
+      "path": "/api/tickets/7",
+      "response": {
+        "status": 204
+      }
+    },
+    {
+      "name": "404 als bewusst konfigurierter Fehlerfall",
+      "port": 8080,
+      "method": "GET",
+      "path": "/api/tickets/999",
+      "response": {
+        "status": 404,
+        "body": {
+          "error": "TICKET_NOT_FOUND",
+          "id": 999
+        }
+      }
+    },
+    {
+      "name": "500 zum Testen der Fehlerbehandlung im Client",
+      "port": 8080,
+      "method": "GET",
+      "path": "/api/flaky",
+      "response": {
+        "status": 500,
+        "body": {
+          "error": "INTERNAL",
+          "message": "Absichtlich kaputt."
+        }
+      }
+    },
+    {
+      "name": "Array als Body",
+      "port": 8080,
+      "method": "GET",
+      "path": "/api/tickets",
+      "response": {
+        "body": [
+          {
+            "id": 7,
+            "title": "Erstes Ticket"
+          },
+          {
+            "id": 8,
+            "title": "Zweites Ticket"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Zahl als Body",
+      "port": 8080,
+      "method": "GET",
+      "path": "/api/tickets/count",
+      "response": {
+        "body": 2
+      }
+    },
+    {
+      "name": "Klartext statt JSON",
+      "port": 8080,
+      "method": "GET",
+      "path": "/health",
+      "response": {
+        "headers": {
+          "Content-Type": "text/plain; charset=UTF-8"
+        },
+        "body": "OK"
+      }
+    },
+    {
+      "name": "eigener Content-Type fuer XML",
+      "port": 8080,
+      "method": "GET",
+      "path": "/legacy/feed",
+      "response": {
+        "headers": {
+          "Content-Type": "application/xml; charset=UTF-8"
+        },
+        "body": "<feed><item>1</item></feed>"
+      }
+    }
+  ]
+}

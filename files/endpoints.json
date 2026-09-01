@@ -1,4 +1,5 @@
 {
+  "$schema": "endpoints.schema.json",
   "endpoints": [
     {
       "name": "createUser",

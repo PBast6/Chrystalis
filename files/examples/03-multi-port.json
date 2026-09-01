@@ -1,0 +1,54 @@
+{
+  "$schema": "../endpoints.schema.json",
+  "endpoints": [
+    {
+      "name": "Produktion",
+      "port": 8080,
+      "method": "GET",
+      "path": "/api/config",
+      "response": {
+        "body": {
+          "stage": "prod",
+          "featureX": false
+        }
+      }
+    },
+    {
+      "name": "Staging",
+      "port": 8081,
+      "method": "GET",
+      "path": "/api/config",
+      "response": {
+        "body": {
+          "stage": "staging",
+          "featureX": true
+        }
+      }
+    },
+    {
+      "name": "Legacy-System",
+      "port": 9090,
+      "method": "GET",
+      "path": "/api/config",
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "text/plain; charset=UTF-8"
+        },
+        "body": "stage=legacy"
+      }
+    },
+    {
+      "name": "nur auf dem Legacy-Port",
+      "port": 9090,
+      "method": "GET",
+      "path": "/ping",
+      "response": {
+        "headers": {
+          "Content-Type": "text/plain; charset=UTF-8"
+        },
+        "body": "pong"
+      }
+    }
+  ]
+}

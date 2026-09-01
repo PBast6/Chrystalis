@@ -1,0 +1,61 @@
+{
+  "$schema": "../endpoints.schema.json",
+  "endpoints": [
+    {
+      "name": "exakter Pfad gewinnt gegen das Muster",
+      "port": 8080,
+      "method": "GET",
+      "path": "/api/users/me",
+      "response": {
+        "body": {
+          "id": 1,
+          "name": "ich selbst"
+        }
+      }
+    },
+    {
+      "name": "Stern-Muster",
+      "port": 8080,
+      "method": "GET",
+      "path": "/api/users/*",
+      "response": {
+        "body": {
+          "id": 0,
+          "name": "irgendein Benutzer"
+        }
+      }
+    },
+    {
+      "name": "Platzhalter im Stil von {id}",
+      "port": 8080,
+      "method": "DELETE",
+      "path": "/api/users/{id}",
+      "response": {
+        "status": 204
+      }
+    },
+    {
+      "name": "mehrere Ebenen mit **",
+      "port": 8080,
+      "method": "GET",
+      "path": "/static/**",
+      "response": {
+        "headers": {
+          "Content-Type": "text/plain; charset=UTF-8"
+        },
+        "body": "irgendeine Datei"
+      }
+    },
+    {
+      "name": "nur GET, deshalb liefert POST hier 405",
+      "port": 8080,
+      "method": "GET",
+      "path": "/api/reports",
+      "response": {
+        "body": {
+          "reports": []
+        }
+      }
+    }
+  ]
+}
